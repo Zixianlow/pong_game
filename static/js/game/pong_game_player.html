@@ -1,0 +1,319 @@
+<main class="d-flex flex-column pt-4 ps-4 pe-4 pb-4 h-100" style="background-color: #1a202c; min-height: 38rem;">
+    <div id="the-game" style="margin: 0; height: 100%; overflow: hidden; font-family: Arial, sans-serif; color: white;">
+        <div id="scoreboard" style="z-index: 99; position: absolute; top: 80px; left: 50%; transform: translateX(-50%); display: flex; justify-content: space-between; width: fit-content; background-color: rgba(0, 0, 0, 0.5); padding: 10px 20px; border-radius: 10px; color: #fff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5); font-family: 'Orbitron', sans-serif;">
+            <div id="player1-score" style="font-weight: bold; font-size: 20px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); animation: score-update 0.3s ease-in-out;">{{ player1 }}: 0</div>
+            <div>&nbsp;&nbsp;&nbsp;</div>
+            <div id="player2-score" style="font-weight: bold; font-size: 20px; text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7); animation: score-update 0.3s ease-in-out;">{{ player2 }}: 0</div>
+        </div>
+        <div id="controls" style="z-index: 99; position: absolute; top: 140px; left: 50%; transform: translateX(-50%); font-size: 2vw; background-color: rgba(0, 0, 0, 0.5); padding: 10px 10px; border-radius: 10px; color: #fff; font-family: 'Orbitron', sans-serif;">
+            {% if request.user.username == player1 %}
+                <p style="font-weight: bold;">Use W/S to move</p>
+            {% else %}
+                <p style="font-weight: bold;">Arrow Up/Down to move</p> 
+            {% endif %}
+        </div>
+        <div id="gameOverModal" style="z-index: 99;  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center;">
+            <div style="background-color: #fff; padding: 20px; border-radius: 8px; width: 300px; text-align: center; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);">
+                <p style="color: black;">Game Over! Winner: <span id="winner"></span></p>
+                <button onclick="updateLink(); loadPage('{% url 'home' %}')" style="margin-top: 15px; padding: 10px 20px; background-color: #007bff; color: #fff; border: none; border-radius: 5px; cursor: pointer;" >Back to Home</button>
+            </div>
+        </div>
+        
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+        <script>
+            let checkGameInterval;
+
+            function updateLink() {
+                const newUrl = `#{% url 'home' %}`; // Construct the new URL
+                history.pushState({}, '', newUrl);
+            }
+
+            function initializeGame() {
+                // Ensure this code runs only once per navigation change
+                const gameContainer = document.getElementById('the-game');
+                if (!gameContainer || gameContainer.querySelector('canvas')) {
+                    return; // Already initialized or element not available
+                }
+
+                const wsProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+                let socket = new WebSocket(wsProtocol + window.location.host + '/ws/pong/{{webs_name}}');
+
+                // WebSocket Event Handlers
+                socket.onerror = function(error) {
+                    console.error('WebSocket error:', error);
+                };
+
+                socket.onopen = function() {
+                    console.log('WebSocket connection established');
+                };
+
+                socket.onclose = function(e) {
+                    console.log('Socket closed. Reconnecting in 1 second.', e.reason);
+                    setTimeout(() => {
+                        socket = new WebSocket(wsProtocol + window.location.host + '/ws/pong/{{webs_name}}');
+                    }, 1000);
+                };
+
+                // Three.js setup
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(
+                    30, window.innerWidth / window.innerHeight, 0.1, 1000
+                );
+                camera.rotation.x = THREE.MathUtils.degToRad(45);
+                camera.position.y = -20;
+                camera.position.z = 20;
+
+                const renderer = new THREE.WebGLRenderer({ antialias: true });
+                renderer.setClearColor(0x000000);
+                renderer.setSize(window.innerWidth * 0.8, window.innerHeight * 0.8);
+
+                renderer.domElement.style.position = 'absolute';
+                renderer.domElement.style.left = `${window.innerWidth * 0.1}px`;
+                gameContainer.appendChild(renderer.domElement);
+
+                const paddleWidth = 0.5;
+                const paddleHeight = 2;
+                const paddleDepth = 0.5;
+                const ballRadius = 0.3;
+                let lastSendTime = 0;
+                const debounceTime = 100;
+
+                const paddleGeometry = new THREE.BoxGeometry(paddleWidth, paddleHeight, paddleDepth);
+                const paddleMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const paddle1 = new THREE.Mesh(paddleGeometry, paddleMaterial);
+                const paddle2 = new THREE.Mesh(paddleGeometry, paddleMaterial);
+                paddle1.position.set(-7, 0, 0);
+                paddle2.position.set(7, 0, 0);
+                scene.add(paddle1);
+                scene.add(paddle2);
+
+                // Add top and bottom walls
+                const wallGeometry = new THREE.BoxGeometry(15, 0.2, 0.5);
+                const wallMaterial = new THREE.MeshBasicMaterial({ color: 0x808080 });
+                const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+                wall.position.set(0, 3, 0);  // Top wall
+                scene.add(wall);
+
+                const wall2 = new THREE.Mesh(wallGeometry, wallMaterial);
+                wall2.position.set(0, -3, 0);  // Bottom wall
+                scene.add(wall2);
+
+                const resetLineXPosition = 8.5;
+
+                const ballGeometry = new THREE.SphereGeometry(ballRadius, 16, 16);
+                const ballMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const ball = new THREE.Mesh(ballGeometry, ballMaterial);
+                ball.position.set(0, 0, 0);
+                // scene.add(ball);
+
+                let ball_speed = 0;
+                let ball_angle = Math.PI;
+                let gameOver = false; // To track game over state
+
+                function get_random_angle(min, max) {
+                    return Math.random() * (max - min) + min;
+                }
+
+                function animate() {
+                    if (gameOver) return;
+                    requestAnimationFrame(animate);
+                
+                    if (Math.abs(ball.position.x) >= resetLineXPosition) {
+                
+                    let reset;
+                    if (ball.position.x >= resetLineXPosition) {
+                        reset = 'player1';
+                    } else {
+                        reset = 'player2';
+                    }
+                
+                    // Reset ball position and speed
+                    ball.position.set(0, 0, 0);
+                    ball_speed = 0.1;
+                    ball_angle = Math.PI;
+                
+                {% if request.user == room.host %}
+                    const gameState = {
+                        paddle1: { y: paddle1.position.y },
+                        paddle2: { y: paddle2.position.y },
+                        ball: { x: ball.position.x, y: ball.position.y },
+                        ball_angle: ball_angle,
+                        reset: reset,
+                        type: 'state_update'
+                    };
+                    socket.send(JSON.stringify(gameState));
+                {% endif %}
+                    }
+                
+                    ball.position.x += ball_speed * Math.cos(ball_angle);
+                    ball.position.y += ball_speed * Math.sin(ball_angle);
+                
+                    // Ball paddle collision
+                    if (ball.position.x - ballRadius <= paddle1.position.x + paddleWidth / 2 &&
+                        ball.position.x + ballRadius >= paddle1.position.x - paddleWidth / 2 &&
+                        ball.position.y - ballRadius <= paddle1.position.y + paddleHeight / 2 &&
+                        ball.position.y + ballRadius >= paddle1.position.y - paddleHeight / 2) {
+                        
+                        // Reverse direction and move ball slightly away from paddle1
+                        ball_angle = Math.PI - ball_angle + get_random_angle(-Math.PI / 4, Math.PI / 4);
+                        ball.position.x = paddle1.position.x + paddleWidth / 2 + ballRadius + 0.01;  // Shift the ball away
+                        ball_speed += 0.01;  // Optionally increase the ball speed slightly
+                        const currentTime = Date.now();
+                        if (currentTime - lastSendTime > debounceTime) {
+                            const gameState = {
+                                paddle1: { y: paddle1.position.y },
+                                paddle2: { y: paddle2.position.y },
+                                ball: { x: ball.position.x, y: ball.position.y },
+                                ball_angle: ball_angle,
+                                type: 'state_update'
+                            };
+                            socket.send(JSON.stringify(gameState));
+                            lastSendTime = currentTime;
+                        }
+                    }
+                
+                    if (ball.position.x - ballRadius <= paddle2.position.x + paddleWidth / 2 &&
+                        ball.position.x + ballRadius >= paddle2.position.x - paddleWidth / 2 &&
+                        ball.position.y - ballRadius <= paddle2.position.y + paddleHeight / 2 &&
+                        ball.position.y + ballRadius >= paddle2.position.y - paddleHeight / 2) {
+                        
+                        ball_angle = Math.PI - ball_angle + get_random_angle(-Math.PI / 4, Math.PI / 4);
+                        ball.position.x = paddle2.position.x - paddleWidth / 2 - ballRadius - 0.01;
+                        ball_speed += 0.01;
+                        const currentTime = Date.now();
+                        if (currentTime - lastSendTime > debounceTime) {
+                            const gameState = {
+                                paddle1: { y: paddle1.position.y },
+                                paddle2: { y: paddle2.position.y },
+                                ball: { x: ball.position.x, y: ball.position.y },
+                                ball_angle: ball_angle,
+                                type: 'state_update'
+                            };
+                            socket.send(JSON.stringify(gameState));
+                            lastSendTime = currentTime;
+                        }
+                    }
+                
+                    if (ball.position.y + ballRadius >= 3.1 || ball.position.y - ballRadius <= -3.1 ) {
+                        ball_angle = 2 * Math.PI - ball_angle;
+                        const currentTime = Date.now();
+                        if (currentTime - lastSendTime > debounceTime) {
+                            const gameState = {
+                                paddle1: { y: paddle1.position.y },
+                                paddle2: { y: paddle2.position.y },
+                                ball: { x: ball.position.x, y: ball.position.y },
+                                ball_angle: ball_angle,
+                                type: 'state_update'
+                            };
+                            socket.send(JSON.stringify(gameState));
+                            lastSendTime = currentTime;
+                        }
+                    }
+                
+                    renderer.render(scene, camera);
+                }
+                
+                animate();
+                document.addEventListener('keydown', function(event) {
+                    if (gameOver) return;  // Prevent movement if the game is over
+                
+                    let shouldSendUpdate = false;
+                
+                    {% if request.user == room.host %}
+                    if (event.key === 'w') {
+                        paddle1.position.y += 0.39;
+                        // Prevent paddle from going off-screen
+                        if (paddle1.position.y + paddleHeight / 2 > 3) {
+                            paddle1.position.y = 3 - paddleHeight / 2;
+                        }
+                    } else if (event.key === 's') {
+                        paddle1.position.y -= 0.39;
+                        if (paddle1.position.y - paddleHeight / 2 < -3) {
+                            paddle1.position.y = -3 + paddleHeight / 2;
+                        }
+                    }
+                    {% else %}
+                    if (event.key === 'ArrowUp') {
+                        paddle2.position.y += 0.39;
+                        if (paddle2.position.y + paddleHeight / 2 > 3) {
+                            paddle2.position.y = 3 - paddleHeight / 2;
+                        }
+                    } else if (event.key === 'ArrowDown') {
+                        paddle2.position.y -= 0.39;
+                        if (paddle2.position.y - paddleHeight / 2 < -3) {
+                            paddle2.position.y = -3 + paddleHeight / 2;
+                        }
+                    }
+                    {% endif %}
+                
+                    if (shouldSendUpdate) {
+                        const currentTime = Date.now();
+                        if (currentTime - lastSendTime > debounceTime) {
+                            const gameState = {
+                                paddle1: { y: paddle1.position.y },
+                                paddle2: { y: paddle2.position.y },
+                                ball: { x: ball.position.x, y: ball.position.y },
+                                ball_angle: ball_angle,
+                                type: 'state_update'
+                            };
+                            socket.send(JSON.stringify(gameState));
+                            lastSendTime = currentTime;
+                        }
+                    }
+                });
+                
+                function updateScoreboard() {
+                    document.getElementById('player1-score').textContent = "{{player1}}: " + player1Score;
+                    document.getElementById('player2-score').textContent = "{{player2}}: " + player2Score;
+                }
+                
+                socket.onmessage = function(e) {
+                    try {
+                        const data = JSON.parse(e.data);
+                
+                        if (data.type === 'start_game') {
+                            scene.add(ball);
+                            ball_speed = 0.1;
+                        } else if (data.type === 'score_update') {
+                            player1Score = data.player1_score;
+                            player2Score = data.player2_score;
+                            updateScoreboard();
+                        } else if (data.type === 'state_update') {
+                            if (data.paddle1 && data.paddle2 && data.ball && 'ball_angle' in data) {
+                                paddle1.position.y = data.paddle1.y;
+                                paddle2.position.y = data.paddle2.y;
+                                ball.position.x = data.ball.x;
+                                ball.position.y = data.ball.y;
+                                ball_angle = data.ball_angle;
+                            }
+                        } else if (data.type === 'game_over') {
+                            gameOver = true;
+                            document.getElementById('gameOverModal').style.display = 'flex';
+                            document.getElementById('winner').textContent = data.winner;
+                        } else {
+                            console.error("Unexpected message type", data.type);
+                        }
+                    } catch (error) {
+                        console.error("Error processing message", error);
+                    }
+                };
+
+
+            }
+
+            // Use setInterval to periodically check for DOM changes and clear interval when canvas is found
+            checkGameInterval = setInterval(() => {
+                const gameContainer = document.getElementById('the-game');
+                if (gameContainer && !gameContainer.querySelector('canvas')) {
+                    initializeGame();
+                } else if (gameContainer && gameContainer.querySelector('canvas')) {
+                    clearInterval(checkGameInterval); // Stop further checks once the game is initialized
+                    console.log('Game initialized, interval cleared.');
+                }
+            }, 1000); // Check every 1 second
+        </script>          
+    </div>
+</main>
+
+

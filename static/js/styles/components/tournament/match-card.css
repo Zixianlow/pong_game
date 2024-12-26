@@ -1,0 +1,134 @@
+/* Match Card Styles */
+.match-card {
+    border: none;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease-in-out;
+    margin-bottom: 1.5rem;
+    background: white;
+}
+
+.card.match-card {
+    width: 400px; /* Adjust as needed */
+}
+
+.match-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+/* Status-based styles */
+.match-card.completed {
+    border-left: 4px solid var(--bs-success);
+}
+
+.match-card.in-progress {
+    border-left: 4px solid var(--bs-primary);
+}
+
+.match-card.scheduled {
+    border-left: 4px solid var(--bs-info);
+}
+
+/* Card Header */
+.match-card .card-header {
+    background: linear-gradient(to right, rgba(13, 110, 253, 0.05), transparent);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 0.75rem 0.75rem 0 0;
+}
+
+.match-number {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--bs-gray-600);
+}
+
+/* Player Row */
+.player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    transition: background-color 0.2s ease;
+}
+
+.player-row:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.player-row.winner {
+    background-color: rgba(25, 135, 84, 0.1);
+}
+
+.match-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(0, 0, 0, 0.1), transparent);
+    margin: 0 1rem;
+}
+
+/* Player Avatar */
+.player-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--bs-gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-avatar i {
+    color: var(--bs-gray-600);
+}
+
+/* Player Info */
+.player-info {
+    flex-grow: 1;
+    margin-right: 1rem;
+}
+
+.player-name {
+    font-weight: 500;
+    color: var(--bs-gray-900);
+    margin-bottom: 0.125rem;
+}
+
+/* Score */
+.score-container {
+    min-width: 2.5rem;
+    text-align: center;
+}
+
+.score {
+    display: inline-block;
+    min-width: 2rem;
+    padding: 0.25rem 0.5rem;
+    font-weight: 600;
+    background: var(--bs-gray-100);
+    border-radius: 0.375rem;
+    color: var(--bs-gray-700);
+}
+
+.score.winning {
+    background: var(--bs-success);
+    color: white;
+}
+
+.score-placeholder {
+    color: var(--bs-gray-400);
+    font-weight: 600;
+}
+
+/* Card Footer */
+.match-card .card-footer {
+    background: transparent;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.start-match-btn {
+    transition: all 0.2s ease;
+}
+
+.start-match-btn:hover {
+    transform: scale(1.05);
+}
