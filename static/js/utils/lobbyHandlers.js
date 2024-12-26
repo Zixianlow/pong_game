@@ -87,6 +87,7 @@ export function initLobbyHandlers() {
 
     quickPlayBtn?.addEventListener('click', () => {
         animate.fadeIn(quickPlayBtn, 100);
+        document.getElementById('restartBtn').click();
     });
 
     refreshRoomsBtn?.addEventListener('click', () => {

@@ -66,7 +66,6 @@ export function initPongGame(player1 = null, player2 = null, semi1 = null, semi2
         centerLine = createCenterLine();
         wall = createWall(3);
         wall2 = createWall(-3)
-
         // Add new objects to the scene
         scene.add(paddle1, paddle2, ball, centerLine, wall, wall2);
         resetBall();
