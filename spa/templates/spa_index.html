@@ -85,6 +85,11 @@
 
     <div id="app" class="container mt-4"></div>
 
+    <div id="tournamentData" class="container mt-4" style="display: none">
+        <span id="semi1Winner" style="display: none"></span>
+        <span id="semi2Winner" style="display: none"></span>
+        <span id="gameType" style="display: none"></span>
+    </div>
     <div id="game" class="container mt-4" style="display: none">
         <div class="row">
             <div class="col-12">
@@ -122,6 +127,9 @@
                                     <h2 id="overlayMessage"></h2>
                                     <button class="btn btn-primary mt-3" id="restartBtn">
                                         <i class="bi bi-play-fill"></i> Play Again
+                                    </button>
+                                    <button class="btn btn-primary mt-3" id="proceedBtn">
+                                        <i class="bi bi-play-fill"></i> Proceed
                                     </button>
                                 </div>
                             </div>

@@ -43,10 +43,45 @@ export class Router {
             return;
         }
 
+        if (path.startsWith('/game')) {
+            const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+            let player1 = urlParams.get('player1');
+            let player2 = urlParams.get('player2');
+            let gametype = urlParams.get('gametype');
+
+            if (!(player1 == null)) {
+                document.querySelector('#player1Name').textContent = player1;
+            }
+
+            if (!(player2 == null)) {
+                document.querySelector('#player2Name').textContent = player2;
+            }
+
+            if (!(gametype == null)) {
+                document.querySelector('#gameType').textContent = gametype;
+            }
+        }
+
         if (path.startsWith('/tournament/brackets')) {
             const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-            const semi1 = urlParams.get('semi1');
-            const semi2 = urlParams.get('semi2');
+            let semi1 = urlParams.get('semi1');
+            let semi2 = urlParams.get('semi1');
+
+            if (!(semi1 == null)) {
+                document.querySelector('#semi1Winner').textContent = semi1;
+            }
+
+            if (!(semi2 == null)) {
+                document.querySelector('#semi2Winner').textContent = semi2;
+            }
+
+            semi1 = document.querySelector('#semi1Winner').textContent;
+            semi2 = document.querySelector('#semi2Winner').textContent;
+
+            if (semi1 = "")
+                semi1 = null;
+            if (semi2 = "")
+                semi2 = null;
 
             if (!(semi1 == null || semi2 == null)){
                 this.root.innerHTML = LoadingSpinner();
@@ -54,6 +89,7 @@ export class Router {
                 try {
                     // Pass the extracted `isTournament` value to PongGameView
                     const view = await TournamentBracketView(semi1, semi2);
+                    hideGameSection();
                     this.root.innerHTML = view;
                 } catch (error) {
                     console.error('Route error:', error);

@@ -1,21 +1,24 @@
 export function MatchCard({ matchId, player1, player2, semi1, semi2, status = 'pending' }) {
-    const gameUrl = `#/game?player1=${encodeURIComponent(player1.name)}&player2=${encodeURIComponent(player2.name)}&semi1=${encodeURIComponent(semi1)}&semi2=${encodeURIComponent(semi2)}&game=` + matchId;
+    const gameUrl = `#/game?player1=${encodeURIComponent(player1.name)}&player2=${encodeURIComponent(player2.name)}&gametype=` + matchId;
 
     const isDisabled = status === 'pending' || status === 'completed';
 
+    const semi1Winner = document.getElementById('semi1Winner').textContent;
+    const semi2Winner = document.getElementById('semi2Winner').textContent;
+
     let greyout = "";
 
-    if (player1.name == semi1){
-        greyout = semi1;
+    if (player1.name == semi1Winner){
+        greyout = semi1Winner;
     }
-    else if (player2.name == semi1){
-        greyout = semi1;
+    else if (player2.name == semi1Winner){
+        greyout = semi1Winner;
     }
-    else if (player1.name == semi2){
-        greyout = semi2;
+    else if (player1.name == semi2Winner){
+        greyout = semi2Winner;
     }
-    else if (player2.name == semi2){
-        greyout = semi2;
+    else if (player2.name == semi2Winner){
+        greyout = semi2Winner;
     }
         
     return `

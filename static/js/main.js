@@ -11,8 +11,9 @@ export function displayGameSection() {
     const game = document.querySelector('#game');
     app.style.display = 'none';
     game.style.display = 'block';
-    console.log('game', game);
+
     document.getElementById('resizeBtn').click();
+    document.getElementById('restartBtn').click();
 }
 
 export function hideGameSection() {
@@ -59,7 +60,6 @@ function initPongGame() {
         console.log('Resetting Pong Game');
         if (!document.getElementById('player1Score'))
             return;
-        hideElement();
         // Reset game state
         state.paused = false;
         state.gameOver = false;
@@ -143,8 +143,8 @@ function initPongGame() {
     }
 
     function updateScore(player) {
-        if (player === 1) state.scores.player1 += 1;
-        else state.scores.player2 += 1;
+        if (player === 1) state.scores.player1 += 12;
+        else state.scores.player2 += 12;
 
         document.getElementById('player1Score').textContent = state.scores.player1;
         document.getElementById('player2Score').textContent = state.scores.player2;
@@ -164,10 +164,19 @@ function initPongGame() {
         const overlay = document.getElementById('gameOverlay');
         const message = document.getElementById('overlayMessage');
         const restartButton = document.getElementById('restartBtn');
+        const proceedButton = document.getElementById('proceedBtn');
+        const semi1Winner = document.getElementById('semi1Winner');
+        const semi2Winner = document.getElementById('semi2Winner');
+        const gametype = document.querySelector('#gameType').textContent;
 
+        if (gametype == 'semi1') semi1Winner.textContent = winner;
+        if (gametype == 'semi2') semi2Winner.textContent = winner;
         message.textContent = `${winner} Wins!`;
         overlay.style.display = 'flex';
-        restartButton.style.display = 'block';
+        if (gametype == 'semi1' || gametype == 'semi2' || gametype == 'final')
+            proceedButton.style.display = 'block';
+        else
+            restartButton.style.display = 'block';
     }
 
     function handleInput() {
@@ -233,19 +242,12 @@ function initPongGame() {
         document.getElementById('gameOverlay').style.display = 'none';
     });
 
-    function hideElement() {
-        const overlay = document.getElementById('gameOverlay');
-        const message = document.getElementById('overlayMessage');
-        const restartbutton = document.getElementById('restartBtn');
-    
-        overlay.style.display = 'none';  // Hide overlay
-        restartbutton.style.display = 'none';
-        message.textContent = '';
-    }
-
     document.getElementById('restartBtn')?.addEventListener('click', () => {
         resetGame();
-        hideElement();
+        document.getElementById('gameOverlay').style.display = 'none';
+        document.getElementById('overlayMessage').textContent = '';
+        document.getElementById('proceedBtn').style.display = 'none';
+        document.getElementById('restartBtn').style.display = 'none';
     });
 
     document.getElementById('resizeBtn')?.addEventListener('click', () => {
@@ -253,7 +255,17 @@ function initPongGame() {
     });
 
     document.getElementById('proceedBtn')?.addEventListener('click', () => {
-        window.location.href = '#/';
+        const gametype = document.querySelector('#gameType').textContent;
+        const p1 = document.getElementById('player1Name').textContent;
+        const p2 = document.getElementById('player2Name').textContent;
+        const winner = state.scores.player1 > state.scores.player2 ? p1 : p2;
+
+        if (gametype == "semi1")
+            window.location.href = '#/tournament/brackets?semi1=' + winner;
+        else if (gametype == "semi2")
+            window.location.href = '#/tournament/brackets?semi2=' + winner;
+        else
+            window.location.href = '#/';
     });
 
     // Animation loop
