@@ -3,6 +3,7 @@ import { LoadingSpinner } from '../components/LoadingSpinner.js';
 import { requireAuth } from './guards.js';
 import { TournamentBracketView } from '../views/TournamentBracketView.js';
 import { displayGameSection, hideGameSection } from '../main.js';
+import { PongGameVSView } from '../views/PongGameVSView.js';
 
 export class Router {
     constructor(rootElement) {
@@ -43,7 +44,13 @@ export class Router {
             return;
         }
 
-        if (path.startsWith('/game')) {
+        if (path.startsWith('/logout')) {
+            localStorage.removeItem('token');
+            window.location.hash = '/login';
+            return;
+        }
+
+        if (path.startsWith('/game') && !path.startsWith('/game-vs')) {
             const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
             let player1 = urlParams.get('player1');
             let player2 = urlParams.get('player2');
@@ -59,6 +66,31 @@ export class Router {
 
             if (!(gametype == null)) {
                 document.querySelector('#gameType').textContent = gametype;
+            }
+        }
+
+        if (path.startsWith('/game-vs')) {
+            const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+            const player1 = urlParams.get('player1');
+            const player2 = urlParams.get('player2');
+            const socketuser = urlParams.get('socketuser');
+
+            if (!(player1 == null || player2 == null)){
+                this.root.innerHTML = LoadingSpinner();
+                
+                try {
+                    // Pass the extracted `isTournament` value to PongGameView
+                    const view = await PongGameVSView(player1, player2, socketuser);
+                    this.root.innerHTML = view;
+                } catch (error) {
+                    console.error('Route error:', error);
+                    this.root.innerHTML = `
+                        <div class="alert alert-danger">
+                            Error loading game room: ${error.message}
+                        </div>
+                    `;
+                }
+                return;
             }
         }
 
@@ -107,7 +139,7 @@ export class Router {
         
         // Show loading spinner
         this.root.innerHTML = LoadingSpinner();
-        if (path.startsWith('/game')) {
+        if (path.startsWith('/game') && !path.startsWith('/game-vs')) {
             displayGameSection();
         } else {
             hideGameSection();

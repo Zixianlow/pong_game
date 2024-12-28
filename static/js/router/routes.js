@@ -17,6 +17,7 @@ import { GameRoomView } from '../views/GameRoomView.js';
 export const routes = {
     '/': HomeView,
     '/login': LoginView,
+    '/logout': LoginView,
     '/register': RegisterView,
     '/whatsapp': WhatsAppView,
     '/profile': ProfileView,

@@ -28,6 +28,11 @@ export function initTournamentForm() {
                 throw new Error('Exactly 4 players are required');
             }
 
+            const playerSet = new Set(players);
+            if (playerSet.size !== players.length) {
+                throw new Error('Players name must be unique');
+            }
+
             // Create tournament data
             const tournamentData = {
                 name: document.getElementById('tournamentName').value,

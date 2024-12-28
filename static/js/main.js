@@ -103,7 +103,7 @@ function initPongGame() {
     console.log('added')
 
     function createPaddle(x) {
-        const geometry = new THREE.BoxGeometry(0.5, 2, 0.5);
+        const geometry = new THREE.BoxGeometry(0.3, 2, 0.5);
         const material = new THREE.MeshBasicMaterial({ color: 0xffffff });
         const paddle = new THREE.Mesh(geometry, material);
         paddle.position.x = x;
@@ -143,8 +143,8 @@ function initPongGame() {
     }
 
     function updateScore(player) {
-        if (player === 1) state.scores.player1 += 12;
-        else state.scores.player2 += 12;
+        if (player === 1) state.scores.player1 += 1;
+        else state.scores.player2 += 1;
 
         document.getElementById('player1Score').textContent = state.scores.player1;
         document.getElementById('player2Score').textContent = state.scores.player2;
@@ -202,17 +202,17 @@ function initPongGame() {
         }
 
         // Paddle collisions
-        if (ball.position.x <= -6.85 && ball.position.x >= -7.0) {
-            if (ball.position.y <= paddle1.position.y + 1 &&
-                ball.position.y >= paddle1.position.y - 1) {
+        if (ball.position.x <= -6.7 && ball.position.x >= -7.0) {
+            if (ball.position.y <= paddle1.position.y + 1.15 &&
+                ball.position.y >= paddle1.position.y - 1.15) {
                 state.ballSpeed.x *= -1.05; // Increase speed slightly
                 state.ballSpeed.y = (ball.position.y - paddle1.position.y) * 0.5; // Add spin
             }
         }
 
-        if (ball.position.x >= 6.85 && ball.position.x <= 7.0) {
-            if (ball.position.y <= paddle2.position.y + 1 &&
-                ball.position.y >= paddle2.position.y - 1) {
+        if (ball.position.x >= 6.7 && ball.position.x <= 7.0) {
+            if (ball.position.y <= paddle2.position.y + 1.15 &&
+                ball.position.y >= paddle2.position.y - 1.15) {
                 state.ballSpeed.x *= -1.05; // Increase speed slightly
                 state.ballSpeed.y = (ball.position.y - paddle2.position.y) * 0.5; // Add spin
             }
