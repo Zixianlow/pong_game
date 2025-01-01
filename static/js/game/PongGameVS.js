@@ -66,8 +66,6 @@ export function initPongGameVS(player1 = null, player2 = null, socketuser = null
                 paddle2.position.y = data.paddle2.y;
             } else if (data.type === 'game_over') {
                 gameOver = true;
-                document.getElementById('gameOverModal').style.display = 'flex';
-                document.getElementById('winner').textContent = data.winner;
             } else {
                 console.error("Unexpected message type", data.type);
             }
@@ -91,7 +89,7 @@ export function initPongGameVS(player1 = null, player2 = null, socketuser = null
     camera.position.z = 20;
 
     // Renderer setup
-    const canvas = document.getElementById('pongCanvas');
+    const canvas = document.getElementById('vspongCanvas');
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     renderer.setSize(canvas.clientWidth, canvas.clientHeight);
 
@@ -107,8 +105,8 @@ export function initPongGameVS(player1 = null, player2 = null, socketuser = null
         state.scores.player2 = 0;
 
         // Reset score display
-        document.getElementById('player1Score').textContent = '0';
-        document.getElementById('player2Score').textContent = '0';
+        document.getElementById('vsplayer1Score').textContent = '0';
+        document.getElementById('vsplayer2Score').textContent = '0';
 
         // Clear previous game objects if any
         if (paddle1) scene.remove(paddle1);
@@ -182,8 +180,8 @@ export function initPongGameVS(player1 = null, player2 = null, socketuser = null
         if (player === 1) state.scores.player1 += 1;
         else state.scores.player2 += 1;
 
-        document.getElementById('player1Score').textContent = state.scores.player1;
-        document.getElementById('player2Score').textContent = state.scores.player2;
+        document.getElementById('vsplayer1Score').textContent = state.scores.player1;
+        document.getElementById('vsplayer2Score').textContent = state.scores.player2;
         const gamestate = {
             scores: { player1: state.scores.player1, player2: state.scores.player2 },
             type: 'score_update'
@@ -269,8 +267,8 @@ export function initPongGameVS(player1 = null, player2 = null, socketuser = null
         const p1 = player1 ? player1 : 'Player 1';
         const p2 = player2 ? player2 : 'Player 2';
         const winner = state.scores.player1 > state.scores.player2 ? p1 : p2;
-        const overlay = document.getElementById('gameOverlay');
-        const message = document.getElementById('overlayMessage');
+        const overlay = document.getElementById('vsgameOverlay');
+        const message = document.getElementById('vsoverlayMessage');
 
         message.textContent = `${winner} Wins!`;
         overlay.style.display = 'flex';
@@ -324,20 +322,20 @@ export function initPongGameVS(player1 = null, player2 = null, socketuser = null
     window.addEventListener('keyup', e => keys[e.code] = false);
 
     // Button handlers
-    document.getElementById('pauseBtn')?.addEventListener('click', () => {
+    document.getElementById('vspauseBtn')?.addEventListener('click', () => {
         state.paused = !state.paused;
-        const btn = document.getElementById('pauseBtn');
+        const btn = document.getElementById('vspauseBtn');
         btn.innerHTML = state.paused ?
             '<i class="bi bi-play-fill"></i> Resume' :
             '<i class="bi bi-pause-fill"></i> Pause';
     });
 
-    document.getElementById('resetBtn')?.addEventListener('click', () => {
+    document.getElementById('vsresetBtn')?.addEventListener('click', () => {
         resetGame();
-        document.getElementById('gameOverlay').style.display = 'none';
+        document.getElementById('vsgameOverlay').style.display = 'none';
     });
 
-    document.getElementById('proceedBtn')?.addEventListener('click', () => {
+    document.getElementById('vsproceedBtn')?.addEventListener('click', () => {
         window.location.href = '#/';
     });
 
@@ -355,7 +353,7 @@ export function initPongGameVS(player1 = null, player2 = null, socketuser = null
 
     // Handle window resize
     function onWindowResize() {
-        const container = document.getElementById('gameContainer');
+        const container = document.getElementById('vsgameContainer');
         const aspect = container.clientWidth / container.clientHeight;
 
         camera.left = -aspect;

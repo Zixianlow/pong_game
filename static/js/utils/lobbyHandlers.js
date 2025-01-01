@@ -87,6 +87,13 @@ export function initLobbyHandlers() {
 
     quickPlayBtn?.addEventListener('click', () => {
         animate.fadeIn(quickPlayBtn, 100);
+        const proceedbutton = document.getElementById('proceedBtn');
+        proceedbutton.style.display = 'none';
+        document.getElementById('semi1Winner').textContent = '';
+        document.getElementById('semi2Winner').textContent = '';
+        document.getElementById('player1Name').textContent = 'Player 1';
+        document.getElementById('player2Name').textContent = 'Player 2';
+        document.querySelector('#gameType').textContent = '';
     });
 
     refreshRoomsBtn?.addEventListener('click', () => {

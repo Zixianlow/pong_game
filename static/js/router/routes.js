@@ -7,7 +7,7 @@ import { ProfileEditView } from '../views/ProfileEditView.js';
 import { NotFoundView } from '../views/NotFoundView.js';
 import { GameLobbyView } from '../views/GameLobbyView.js';
 import { LocalTournamentView } from '../views/LocalTournamentView.js';
-import { PongGameView, initPongGameView } from '../views/PongGameView.js';
+import { PongGameView } from '../views/PongGameView.js';
 import { PongGameVSView } from '../views/PongGameVSView.js';
 import { TournamentBracketView } from '../views/TournamentBracketView.js';
 import { TournamentPodiumView } from '../views/TournamentPodiumView.js';
@@ -17,6 +17,7 @@ import { GameRoomView } from '../views/GameRoomView.js';
 export const routes = {
     '/': HomeView,
     '/login': LoginView,
+    '/logout': LoginView,
     '/register': RegisterView,
     '/whatsapp': WhatsAppView,
     '/profile': ProfileView,
@@ -31,11 +32,3 @@ export const routes = {
     '/game-room': GameRoomView,
     '/404': NotFoundView
 };
-
-
-// Modify the render function to check for the '/game' route
-export function renderView(path) {
-    if (path === '/game') {
-        initPongGameView(); // Call the function to initialize the Pong game
-    }
-}

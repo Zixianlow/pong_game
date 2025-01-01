@@ -1,4 +1,4 @@
-import { initPongGame } from '../game/PongGame.js'; // Make sure the import path is correct.
+// Make sure the import path is correct.
 
 export function PongGameView() {
     // Return the HTML structure for the game view
@@ -41,8 +41,4 @@ export function PongGameView() {
             </div>
         </div>
     `;
-}
-
-export function initPongGameView() {
-        initPongGame(); // Call initPongGame when the DOM is ready
 }

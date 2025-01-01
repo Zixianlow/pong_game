@@ -44,11 +44,11 @@ export function PongGameTournamentView(player1, player2, semi1, semi2, game) {
                                 </div>
                             </div>
                             <div class="text-center text-white" style="display: none">
-                                    <h2 id="overlayMessage"></h2>
-                                    <button class="btn btn-primary mt-3" id="restartBtn">
-                                        <i class="bi bi-play-fill"></i> Play Again
-                                    </button>
-                                </div>
+                                <h2 id="overlayMessage"></h2>
+                                <button class="btn btn-primary mt-3" id="restartBtn">
+                                    <i class="bi bi-play-fill"></i> Play Again
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>

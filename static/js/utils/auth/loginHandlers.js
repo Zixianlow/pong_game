@@ -41,15 +41,7 @@ export function initLoginHandlers() {
             form.insertBefore(successMessage, form.firstChild);
             animate.fadeIn(successMessage);
 
-            // Get redirect URL if exists
-            const redirectUrl = localStorage.getItem('redirectUrl') || '/';
-            localStorage.removeItem('redirectUrl');
-
-            // Redirect after successful login
-            setTimeout(() => {
-                window.location.href = redirectUrl;
-            }, 1500);
-
+            window.location.href = '#/';
         } catch (error) {
             // Show error message
             const errorMessage = document.createElement('div');

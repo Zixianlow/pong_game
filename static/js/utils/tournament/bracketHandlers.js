@@ -3,6 +3,8 @@ import { TournamentState } from './state.js';
 import { MatchCard } from '../../views/components/tournament/MatchCard.js';
 
 export function initTournamentBracket(semi1 = null, semi2 = null) {
+    semi1 = document.getElementById('semi1Winner').textContent;
+    semi2 = document.getElementById('semi2Winner').textContent;
     const bracketContainer = document.getElementById('bracketContainer');
     const tournament = TournamentState.getTournamentData();
 
